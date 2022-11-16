@@ -1,0 +1,30 @@
+name: torch112cu116
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: hieupth/minicuda:11.6-devel
+    steps:
+      -
+        name: install packages
+        run:
+          conda install astunparse numpy ninja pyyaml cffi typing_extensions future six requests dataclasses mkl mkl-include magma-cuda112 -c pytorch
+      -
+        name: prepare source
+        run:
+          wget https://github.com/pytorch/pytorch/archive/refs/tags/v1.12.1.tar.gz -O torch.tar.gz && \
+          tar -xzf torch.tar.gz --directory torch
+      -
+        name: build
+        run:
+          cd torch && \
+          MAX_JOBS=1 USE_CUDA=1 USE_CUDNN=1 BUILD_TEST=0 USE_MKLDNN=1 TORCH_CUDA_ARCH_LIST=All \
+            CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"} && \
+            python setup.py clean && \
+            python setup.py bdist_wheel

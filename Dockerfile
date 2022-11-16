@@ -8,9 +8,8 @@ ARG TORCH
 
 RUN conda install astunparse numpy ninja pyyaml cffi typing_extensions future six requests dataclasses mkl mkl-include magma-cuda${CUDA} -c pytorch
 
-RUN wget https://github.com/pytorch/pytorch/archive/refs/tags/${TORCH}.tar.gz -O torch.tar.gz && \
-    tar -xfz torch.tar.gz --directory torch && \
-    rm torch.tar.gz
+RUN wget https://github.com/pytorch/pytorch/archive/refs/tags/${TORCH}.tar.gz -O torch.tar.gz
+RUN mkdir torch && tar -zxf torch.tar.gz -C torch --strip-components 1
 
 WORKDIR torch
 

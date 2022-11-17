@@ -28,13 +28,19 @@ jobs:
       - 
         name: Checkout
         uses: actions/checkout@v2
+      -
+        name: Prepare Image Tag
+        run: |
+          IFS='.' read -r -a cuda <<< "${{ matrix.cuda_version }}"
+          IFS='.' read -r -a torch <<< "${{ matrix.torch_version }}"
+          echo "image_tag=${torch[0]:1}${torch[1]}-cu${cuda[0]}${cuda[1]}" >> $GITHUB_ENV
       - 
         name: Build Image
         uses: docker/build-push-action@v3
         with:
           push: true
           context: .
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/torchbuild:${{ matrix.torch_version}}-cu${{ matrix.cuda_version }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/torchbuild:${{ env.image_tag}}
           build-args: |
             CUDA_VERSION=${{ matrix.cuda_version }}
             TORCH_VERSION=${{ matrix.torch_version }}
